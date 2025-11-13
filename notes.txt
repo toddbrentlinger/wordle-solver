@@ -1,0 +1,115 @@
+Wordle Solver and Grid Generator Notes
+
+Add selected word and then set which letters are grey (not used), yellow (used but wrong location), and green (used in right location). A list of possible words that fit that criteria is calculated.
+
+Image Creator:
+Adding the selected word and then creating your 5x6 grid image using grey, yellow, and green. Group of words is created for each 6 guesses to create that same grid design.
+ISSUE: Some designs could not be possible with the given word.
+SOLUTION: Could add library of grid designs. Each design is tested against the final word and designs that are possible are presented, including the list of possible words for each guess (OR just first valid word for each guess). User can create their own grid designs to be added to the grid design library which are tested for each input word.
+
+Storing custom grid designs:
+Using database seems overcomplicated for something so simple. Maybe better to store grid design data using 
+local storage methods. 
+If local storage is cleared for any reason, user should be able to save grid designs on local computer. Local file can then be uploaded to site to load multiple grid designs at once instead of inputting them all one at a time. 
+How to store grid designs?
+5x6 grid of data cells. Each data cell can only be one of three values: grey(0), yellow(-1), green(1)
+
+ISSUE: Grid design uses 3 colors. One combination of colors may not be valid for some word. But if some colors switched, then it could be valid for the same word.
+SOLUTION: Each design is made with Color1, Color2, Color3. Each design is checked with Grey as Color1, then Grey as Color2, and then Grey as Color3. Six possible combinations to check if valid for given word.
+1 Grey Yellow Green
+2 Grey Green Yellow
+3 Yellow Grey Green
+4 Yellow Green Grey
+5 Green Grey Yellow
+6 Green Yellow Grey
+NOTE: Could mark that a specific color in a design is always checked, skipping other colors in that position. Array of max 2 size to hold colors to skip or only colors to check.
+But what if a color is limited in only part of a design? Need to be able to set color limits on each grid square individually.
+
+Store name of grid design
+
+Inspiration: Pixel Art Icons
+
+Limitations:
+- All green row can only be last row (may not be 6th guess/row). Once a word is guessed correctly, no other guesses are allowed.
+
+ISSUE: Some 5-letter words may not be accepted in wordle so the first valid word found when using a grid design may not be accepted.
+SOLUTION: Could return all valid words OR limit to first 3-5 valid words found.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check if word instance in list matches criteria:
+
+Criteria Object:
+Single letter in a guess has 3-options: grey (0), yellow (-1), green (1)
+EX: 
+guess = [0,0,0,0,0] -> None of the letters are used
+guess = [-1,-1,0,0,0] -> First 2 letters are used but wrong position. Rest not used
+guess = [1,1,0,-1,-1] -> First 2 letters are in final position. Last 2 letters are used but wrong position
+guess = [1,1,1,1,1] -> All letters are in final position. Final word found
+
+IF 1st guess = ('grail', [0,1,1,0,0])
+THEN
+final_word = [null,'r','a',null,null]
+letters_wrong_position = [null,null,null,null,null] 
+letters_not_used = ['g','i','l']
+
+IF 2nd guess = ('track', [0,1,1,-1,0])
+final_word = [null,'r','a',null,null]
+letters_wrong_position = [null,null,null,{'c'},null] 
+letters_not_used = {'g','i','l','t','k'}
+
+IF 3rd guess = ('cramp', [1,1,1,0,0])
+final_word = ['c','r','a',null,null]
+letters_wrong_position = [null,null,null,{'c'},null] 
+letters_not_used = {'g','i','l','t','k'}
+NOTE: 'c' could be duplicate letter so it should stay in letters_wrong_position
+NOTE: letters_not_used should be sorted in alphabetical order to improve search algorithm when comparing letters.
+
+ISSUE: 
+
+JS array method includes()
+[1,2,3].includes(2) -> true
+[1,2,3].includes(4) -> false
+Check if this is faster than binary search assuming array is sorted
+
+26 length array to hold counts of each letter for quicker read speed from O(n) to O(1)
+
+ISSUE: Duplicate Letters
+How is it handled?
+
+Algorithm:
+- For n-th word in dictionary list, starting with first character at i-th index.
+   - IF i-th char is same letter in ith-index of final_word, word could be valid. Continue to next letter at
+	(i+1)-th index
+   - IF i-th char is in letters_not_used, skip n-th word since NOT valid
+   - i-th char could be in word
+
+greenLetters = [null, 'h', null, 'r', null]
+
+containsObj = {
+	'c': [0,1] -> 'c' in word but NOT at index 0 and 1
+}
+
+greyLettersSet { 'a', 'b', 'c' }
+- Set or dictionary to have O(1) speed
+
+Which qualifier test should go first?
+- Test for any green letters (correct letter and position)
+	Max is 5 tests per word, testing each character once
+	Eliminates most words in this step
+	Test if green letter at ith index is also in the ith index of current word 
+- Test for any yellow letters (correct letter but wrong position)
+	Max is 5 tests per word, 1 test per letter
+	Test if yellow letter is NOT in 
+- Test for any grey letters (none used in final word)
+	- Can guess 30 in full 6-round game BUT final 5-letter word must be made of at least 3 unique letters 	  so final size storing grey_letters will be around max 23 letters to test.
+		- Best to test if each letter of word exists inside grey_letters
+	Max around 23 or more tests per letter. 23*5=115 max tests per word
+
+Yellow Test (Correct letter but wrong position)
+- TEST 1: If specific letter NOT in specific index
+- TEST 2: AND specific letter exists at some other index
+ISSUE: How to handle duplicate letters?
+- Same letter can be in green AND yellow letters. One letter was correct position but second letter still not found. May be only way to confirm a letter appears twice.
+- Two of the same letter in a guess could be yellow but only appear once in final word. So multiple yellow indices for a letter should only test for a single instance of that letter in the word testing for validity against the testing criteria object.
+
