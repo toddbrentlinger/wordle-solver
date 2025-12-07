@@ -21,11 +21,12 @@ interface SolutionWordLetterCount {
     [key: string]: number;
 }
 
-interface ValidGridDesign {
+export interface ValidGridDesign {
     name: string;
     grid: number[][];
     guesses: string[][];
     rarity: number;
+    colorFill: number;
 }
 
 // Array of five letter words
@@ -153,7 +154,7 @@ function swapGridDesignValues(gridDesign: GridDesign, newYellowVal: GridValue, n
 
     // Deep copy grid design object
     const newGridDesign = {
-        name: gridDesign.name + ' (' + newYellowVal + ', ' + newGreyVal + ', ' + newGreenVal + ')',
+        name: gridDesign.name + ' ' + (newYellowVal + 1).toString() + (newGreyVal + 1).toString() + (newGreenVal + 1).toString(),
         canMirror: gridDesign.canMirror,
         grid: gridDesign.grid.map(gridDesignRow => gridDesignRow.slice()),
     };
@@ -343,8 +344,13 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGri
         });
     }
 
-    // Sort valid grid designs by rarity value
-    validGridDesignArr.sort((a, b) => b.rarity - a.rarity);
+    // Sort valid grid designs by rarity value primarily and color fill secondarily 
+    validGridDesignArr.sort((a, b) => {
+        if (a.rarity === b.rarity) {
+            return b.colorFill - a.colorFill;
+        }
+        return b.rarity - a.rarity;
+    });
 
     return validGridDesignArr;
 }
@@ -380,6 +386,9 @@ function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, 
     /** Holds guesses for current grid design row being tested. */
     let validWordsArr: string[];
 
+    /** Number of grey nodes in grid design. Used to calculate color fill percentage. */
+    let numGreyNodes: number = 0;
+
     // Find possible guesses for each row of grid design 
     for (const gridDesignRow of gridDesignObj.grid) {
         // Get array of valid guesses for the current row of grid design
@@ -390,14 +399,32 @@ function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, 
             return;
         }
 
-        // If reach here, found guesses for the current row. Add guesses for row.
+        // If reach here, found guesses for the current row. 
+        
+        // Find number of grey nodes to help calculate color fill percentage
+        numGreyNodes += gridDesignRow.reduce((accum, curr) => {
+            if (curr === 0) { return accum + 1; }
+            return accum;
+        }, 0);
+        
+        // Add guesses for row.
         guesses.push(validWordsArr);
     }
 
     /** Higher rarity number equals less number of guesses to create the grid design. */
     const rarity: number = calculateValidGridDesignRarity(gridDesignObj, guesses, maxWords);
+
+    /** Calculate color fill percentage using number of grey nodes. */
+    const colorFill = Math.round(
+        100 - 100 * (numGreyNodes / (gridDesignObj.grid.length * gridDesignObj.grid[0].length))
+    );
     
-    return { ...gridDesignObj, guesses, rarity };
+    return { 
+        ...gridDesignObj, 
+        guesses, 
+        rarity,
+        colorFill,
+    };
 }
 
 /**
