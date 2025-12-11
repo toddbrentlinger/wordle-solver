@@ -29,6 +29,10 @@ export interface ValidGridDesign {
     colorFill: number;
 }
 
+interface GuessesHashMap {
+    [key: string]: string[];
+}
+
 // Array of five letter words
 const fiveLetterWordsArr: string[] = Object.keys(fiveLetterWordsObj);
 
@@ -318,6 +322,9 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGri
     /** Array of valid grid designs to be returned */
     const validGridDesignArr: ValidGridDesign[] = [];
 
+    /** Hash map to hold array of guesses for previously calculated grid design rows. */
+    const guessesHashMap: GuessesHashMap = {};
+
     /** 
      * Temporary variable to hold a valid grid design to be added to array or 
      * equal to undefined when grid design was not valid.
@@ -333,7 +340,8 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGri
                 validGridDesign = checkSingleGridDesign(
                     solutionWord, 
                     gridDesignVersion,
-                    maxWords
+                    maxWords,
+                    guessesHashMap
                 );
 
                 // Push valid grid design to array. Skip if undefined (not valid).
@@ -361,9 +369,10 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGri
  * @param {string} solutionWord 
  * @param {GridDesign} gridDesignObj 
  * @param {number} maxWords 
+ * @param {GuessesHashMap} guessesHashMap
  * @returns {ValidGridDesign|undefined}
  */
-function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, maxWords: number): ValidGridDesign | undefined {
+function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, maxWords: number, guessesHashMap: GuessesHashMap = {}): ValidGridDesign | undefined {
     /** Object to hold letters and their indices in solution word. */
     const solutionWordObj: SolutionWordObj = {};
 
@@ -389,10 +398,25 @@ function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, 
     /** Number of grey nodes in grid design. Used to calculate color fill percentage. */
     let numGreyNodes: number = 0;
 
+    /** Key for hash map of guesses for previously calculated grid design rows. */
+    let hashMapKey: string;
+
     // Find possible guesses for each row of grid design 
     for (const gridDesignRow of gridDesignObj.grid) {
-        // Get array of valid guesses for the current row of grid design
-        validWordsArr = checkSingleGridDesignRow(solutionWordObj, gridDesignRow, maxWords);
+        hashMapKey = gridDesignRow
+            .reduce((accum, curr) => accum + (curr + 1).toString(), '');
+
+        // If guesses array already found for this grid design row
+        if (hashMapKey in guessesHashMap) {
+            // Use guesses array already in hash map
+            validWordsArr = guessesHashMap[hashMapKey];
+        } else { // Else new grid design row
+            // Get array of valid guesses for the current row of grid design
+            validWordsArr = checkSingleGridDesignRow(solutionWordObj, gridDesignRow, maxWords);
+
+            // Add guesses array to hash map
+            guessesHashMap[hashMapKey] = validWordsArr;
+        }
 
         // If NO valid words found (empty word array), grid design NOT possible. Return undefined
         if (validWordsArr.length === 0) {
