@@ -1,0 +1,27 @@
+#all-valid-grid-designs {
+    --growth-ratio: 1.2;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    //grid-template-columns: repeat(auto-fit, minmax(min-content, max-content));
+
+    .all-valid-grid-designs-list-item {
+        // Transition
+        transition: transform 500ms ease;
+        //transform: scale(calc(1 / var(--growth-ratio)));
+
+        // Font Size adjusted after scaled down by transform
+        //font-size: calc(var(--growth-ratio) * 100%);
+
+        &:hover,
+        &:focus,
+        &:active {
+            //transform: scale(1);
+        }
+    }
+}
+
+#last-word-calculated {
+    text-align: left;
+    padding: .5rem 0;
+}
