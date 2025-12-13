@@ -313,9 +313,10 @@ function getAllGridDesignVarations(gridDesign: GridDesign): GridDesign[] {
  * Returns undefined if solution word argument is not valid word.
  * @param {string} solutionWord 
  * @param {number} maxWords 
+ * @param {GridDesign[]} gridDesignArr
  * @returns {ValidGridDesign[]|undefined}
  */
-function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGridDesign[] | undefined {
+function checkGridDesigns(solutionWord: string, maxWords: number = 10, gridDesignarr: GridDesign[] = gridDesignsDefault): ValidGridDesign[] | undefined {
     // Check that solutionWord is valid
     if (!isWordValid(solutionWord)) { return; }
 
@@ -331,7 +332,7 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10): ValidGri
      */
     let validGridDesign: ValidGridDesign | undefined;
     
-    for (const gridDesignObj of gridDesignsDefault) {
+    for (const gridDesignObj of gridDesignarr) {
         // Check all variations of each grid design
         getAllGridDesignVarations(gridDesignObj).forEach((gridDesignVersion) => {
             // If current variation is NOT valid, skip
