@@ -1,9 +1,7 @@
 import './WordleArtDesignChecker.scss';
-import WordleArtDesign from './WordleArtDesign';
 import SolutionWordForm from './SolutionWordForm';
-import { useState } from 'react';
 import checkGridDesigns, { type ValidGridDesign } from '../logic-scripts/grid-design-checker';
-import WordleArtDesignDetailed from './WordleArtDesignDetailed';
+import ValidGridDesignDisplay from './ValidGridDesignDisplay';
 
 interface WordleArtDesignCheckerProps {
     solutionWord: string;
@@ -25,24 +23,6 @@ function WordleArtDesignChecker({
     validGridDesigns, setValidGridDesigns, 
     lastWordCalculated, setLastWordCalculated
 }: WordleArtDesignCheckerProps) {
-    /** Currently selected grid design to display in detail. Nothing displayed if null. */
-    const [selectedGridDesign, setSelectedGridDesign] = useState<ValidGridDesign | null>(null);
-
-    /**
-     * Handles when User clicks on grid design to see more details.
-     * @param {ValidGridDesign | null} validGridDesign 
-     */
-    const handleGridDesignClick = (validGridDesign: ValidGridDesign | null) => {
-        setSelectedGridDesign(validGridDesign);
-        
-        console.log(validGridDesign);
-    };
-
-    /** Handles when User closes detailed modal for currently selected grid design. */
-    const handleGridDesignDetailedClose = () => {
-        setSelectedGridDesign(null);
-    };
-
     /**
      * Handles form submit event for new solution word.
      * @param {string} solutionWord 
@@ -56,16 +36,6 @@ function WordleArtDesignChecker({
         
         console.log(newValidGridDesigns);
     };
-
-    /** Array of valid grid design components. */
-    const validGridDesignComponents = validGridDesigns.map((validGridDesignSingle, designIndex) => (
-        <li key={ designIndex } className="all-valid-grid-designs-list-item">
-            <WordleArtDesign 
-                { ...validGridDesignSingle }
-                onClickHandler={ handleGridDesignClick }
-            />
-        </li>
-    ));
     
     return (
         <main>
@@ -75,23 +45,10 @@ function WordleArtDesignChecker({
                 solutionWord={ solutionWord }
                 setSolutionWord={ setSolutionWord }
             />
-            <div id="last-word-calculated">{ 
-                lastWordCalculated 
-                    ? `Showing ${ validGridDesigns.length } results for solution: ${ lastWordCalculated }`
-                    : null
-            }</div>
-            <ul id="all-valid-grid-designs">
-                { validGridDesignComponents }
-            </ul>
-            { 
-                (selectedGridDesign !== null) 
-                    ? <WordleArtDesignDetailed 
-                        { ...selectedGridDesign }
-                        solutionWord={ lastWordCalculated }
-                        closeHandler={ handleGridDesignDetailedClose }
-                    />
-                    : null
-            }
+            <ValidGridDesignDisplay 
+                validGridDesigns={ validGridDesigns }
+                lastWordCalculated={ lastWordCalculated }
+            />
         </main>
     );
 }

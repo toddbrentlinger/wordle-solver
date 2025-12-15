@@ -1,0 +1,47 @@
+@keyframes design-slide-down {
+    0% {
+        top: -100%;
+    }
+    100% {
+        top: 0%;
+    }
+}
+
+#all-valid-grid-designs {
+    --growth-ratio: 1.2;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    //grid-template-columns: repeat(auto-fit, minmax(min-content, max-content));
+
+    .all-valid-grid-designs-list-item {
+        overflow: hidden;
+
+        // Transition
+        transition: transform 500ms ease;
+        //transform: scale(calc(1 / var(--growth-ratio)));
+
+        // Font Size adjusted after scaled down by transform
+        //font-size: calc(var(--growth-ratio) * 100%);
+
+        &:hover,
+        &:focus,
+        &:active {
+            //transform: scale(1);
+        }
+
+        .grid-design-list-item-animation-container {
+            position: relative;
+            top: 100%;
+            animation-name: design-slide-down;
+            animation-duration: 300ms;
+            animation-timing-function: ease-in-out;
+            animation-fill-mode: forwards;
+        }
+    }
+}
+
+#last-word-calculated {
+    text-align: left;
+    padding: .5rem 0;
+}
