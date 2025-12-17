@@ -1,0 +1,28 @@
+#wordle-art-design-creator-app {
+    --grid-gap: 0.5rem;
+
+    #design-creator-grid-container {
+        .board {
+            gap: var(--grid-gap, 0.5rem);
+
+            .board-row {
+                gap: var(--grid-gap, 0.5rem);;
+
+                .board-node {
+                    width: 8rem;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    .wordle-art-design {
+        box-sizing: border-box;
+        border: none;
+
+        &:hover {
+            border: none;
+            cursor: inherit;
+        }
+    }
+}
