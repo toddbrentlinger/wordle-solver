@@ -1,41 +1,175 @@
-Wordle Solver and Grid Generator Notes
+To-Do List:
 
-Add selected word and then set which letters are grey (not used), yellow (used but wrong location), and green (used in right location). A list of possible words that fit that criteria is calculated.
+12/17/25
+
+getGridDesigns() inside grid-design-checker which returns a deep copy of the 
+array of grid designs. Why deep copy? Safer but longer runtime.
+getAllGridDesigns() - default AND custom
+getDefaultGridDesigns() - only default
+getCustomGridDesigns() - only custom 
+
+Settings Menu
+- Max number of guesses to find when finding valid grid designs 
+(minimum 1)
+    - Could just be option in ValidGridDesignDisplay or SolutionWordForm
+
+Library Settings:
+- Default Library (default grid desgins)
+    - User can deselect designs they don't want to check.
+    - User can toggle canMirror property for each default design.
+    - User can deselect the color swap variations to check.
+    - Need function to reset all User settings to default values.
+- Custom Library (custom grid designs)
+    - Same functionality of default library plus more
+    - User can not only deselect custom design, they can delete 
+    the custom grid design as well.
+    - User can change name of custom grid designs (NOT default grid designs)
+
+
+12/10/25
+
+for each possible solution word 
+    find all valid grid designs for that solution word with maxwords=1
+    for each valid grid design
+        use design name as key and increment value of that key in hash map
+
+021, 102, 120, 201, 210
+ex. 120 and 201 should be skipped
+skip-color-swap: {
+    '021': false, '102': false, '120': true, '201': true, '210': false
+}
+OR
+skip-color-swap: ['120', '201']
+
+Below grid design creator, have 2 tabs:
+1. Design Only - Only checks for that design for validity
+2. All Variations - Check max 12 variations for validity 
+
+Save Custom Grid Design Component:
+Form asks for name and can mirror property.
+Displays all possible grid designs while form is changed.
+Eventually able to deselect certain designs (certain color swaps don't look 
+right) to NOT check them for validity in the future.
+
+Use grid-design-rarity.json to calculate rarity value. Use percentage to 
+represent the percent of all words where the grid design is valid. 
+100% rarity when every word can create the grid design. Less than 1% rarity 
+when very few words can create the grid design.
+What to rename the current rarity value that uses the number of guesses 
+to calculate the value? Difficulty
+
+12/6/25
+
+- Add optional parameter in grid-design-checker functions for array of grid 
+designs to check for the solution word. If no argument is passed, the entire 
+default list of grid designs are checked.
+This allows just a subset of grid designs to be checked. Such as when only a 
+single design and it's variations are tested when creating a new grid design 
+in the creator app OR when the user wants to find all the solution words that 
+make the grid design valid (used to see if a design is impossible or exactly 
+how rare a grid design will ever be possible)
+
+X If each node has only 3 options and there are 5 nodes in a row, 
+there are 3^5=243 possibilities for row designs. That's equivalent to 
+checking only 41 grid designs: 41 x 6row = 246 rows
+More time efficient to store results for each unique row design.
+Could calculate all 243 possibilities and keep a record of the guesses 
+array for all 243 possibilities to quickly reference when checking grid 
+design.
+* OR keep record of all previous rows and guesses calculated in case 
+the same row design is checked in later grid designs.
+How to store data?
+1. 5-D array
+ex. [1, -1, -1, 0, 1] => hash[2][0][0][1][2] = guesses
+2. Convert 5-sequence color values to string and then use that string 
+as a key where value is array of guesses
+ex. [1, -1, -1, 0, 1] => hash['20012'] = guesses
+
+12/1/25
+
+- Row cannot be all green with one yellow. If there is one yellow, there must be 
+at least one grey or one other yellow. Apply this when checking if grid design is 
+valid. No guesses will be found for this row anyway, and the grid design with NOT 
+be valid, but the entire design could be skipped first with this check.
+
+X Add property to valid grid design: percentage color 
+Percent of total 5x6 grid that is either yellow or green.
+Higher the percent, the less likely a grid design will be valid.
+
+- Add button on GridDesign or GridDesignDetail that copies the design onto the 
+custom design creator for the user to start modifying.
+
+11/24/25
+
+X Can move solution word submit form up to parent since it's displayed and 
+controlled the same in both 'checker' and 'creator' apps.
+
+- Add properties to default art design objects:
+1. check-mirrored-design boolean - design is mirrored horizontally
+2. check-color-swaps boolean - 6 different variations tested by swapping 3 colors
+    - {freeze: {yellow: false, grey: false, green: false}}
+    Should choose which color to freeze but others may swap
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Wordle Solver and Art Generator Notes
+
+Add selected word and then set which letters are grey (not used), yellow (used 
+but wrong location), and green (used in right location). A list of possible 
+words that fit that criteria is calculated.
 
 Image Creator:
-Adding the selected word and then creating your 5x6 grid image using grey, yellow, and green. Group of words is created for each 6 guesses to create that same grid design.
+Adding the selected word and then creating your 5x6 grid image using grey, 
+yellow, and green. Group of words is created for each 6 guesses to create that 
+same grid design.
 ISSUE: Some designs could not be possible with the given word.
-SOLUTION: Could add library of grid designs. Each design is tested against the final word and designs that are possible are presented, including the list of possible words for each guess (OR just first valid word for each guess). User can create their own grid designs to be added to the grid design library which are tested for each input word.
+SOLUTION: Could add library of grid designs. Each design is tested against the 
+final word and designs that are possible are presented, including the list of 
+possible words for each guess (OR just first valid word for each guess). User 
+can create their own grid designs to be added to the grid design library which 
+are tested for each input word.
 
 Storing custom grid designs:
-Using database seems overcomplicated for something so simple. Maybe better to store grid design data using 
-local storage methods. 
-If local storage is cleared for any reason, user should be able to save grid designs on local computer. Local file can then be uploaded to site to load multiple grid designs at once instead of inputting them all one at a time. 
+Using database seems overcomplicated for something so simple. Maybe better to 
+store grid design data using local storage methods. 
+If local storage is cleared for any reason, user should be able to save grid 
+designs on local computer. Local file can then be uploaded to site to load 
+multiple grid designs at once instead of inputting them all one at a time. 
 How to store grid designs?
-5x6 grid of data cells. Each data cell can only be one of three values: grey(0), yellow(-1), green(1)
+5x6 grid of data cells. Each data cell can only be one of three values: 
+grey(0), yellow(-1), green(1)
 
-ISSUE: Grid design uses 3 colors. One combination of colors may not be valid for some word. But if some colors switched, then it could be valid for the same word.
-SOLUTION: Each design is made with Color1, Color2, Color3. Each design is checked with Grey as Color1, then Grey as Color2, and then Grey as Color3. Six possible combinations to check if valid for given word.
+ISSUE: Grid design uses 3 colors. One combination of colors may not be valid 
+for some word. But if some colors switched, then it could be valid for the 
+same word.
+SOLUTION: Each design is made with Color1, Color2, Color3. Each design is 
+checked with Grey as Color1, then Grey as Color2, and then Grey as Color3. 
+Six possible combinations to check if valid for given word.
 1 Grey Yellow Green
 2 Grey Green Yellow
 3 Yellow Grey Green
 4 Yellow Green Grey
 5 Green Grey Yellow
 6 Green Yellow Grey
-NOTE: Could mark that a specific color in a design is always checked, skipping other colors in that position. Array of max 2 size to hold colors to skip or only colors to check.
-But what if a color is limited in only part of a design? Need to be able to set color limits on each grid square individually.
+NOTE: Could mark that a specific color in a design is always checked, skipping 
+other colors in that position. Array of max 2 size to hold colors to skip or 
+only colors to check.
+But what if a color is limited in only part of a design? Need to be able to 
+set color limits on each grid square individually.
 
 Store name of grid design
 
 Inspiration: Pixel Art Icons
 
 Limitations:
-- All green row can only be last row (may not be 6th guess/row). Once a word is guessed correctly, no other guesses are allowed.
+- All green row can only be last row (may not be 6th guess/row). Once a word is 
+guessed correctly, no other guesses are allowed.
 
-ISSUE: Some 5-letter words may not be accepted in wordle so the first valid word found when using a grid design may not be accepted.
+ISSUE: Some 5-letter words may not be accepted in wordle so the first valid word 
+found when using a grid design may not be accepted.
 SOLUTION: Could return all valid words OR limit to first 3-5 valid words found.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check if word instance in list matches criteria:
 
@@ -63,7 +197,8 @@ final_word = ['c','r','a',null,null]
 letters_wrong_position = [null,null,null,{'c'},null] 
 letters_not_used = {'g','i','l','t','k'}
 NOTE: 'c' could be duplicate letter so it should stay in letters_wrong_position
-NOTE: letters_not_used should be sorted in alphabetical order to improve search algorithm when comparing letters.
+NOTE: letters_not_used should be sorted in alphabetical order to improve search 
+algorithm when comparing letters.
 
 ISSUE: 
 
@@ -79,8 +214,8 @@ How is it handled?
 
 Algorithm:
 - For n-th word in dictionary list, starting with first character at i-th index.
-   - IF i-th char is same letter in ith-index of final_word, word could be valid. Continue to next letter at
-	(i+1)-th index
+   - IF i-th char is same letter in ith-index of final_word, word could be valid. 
+    Continue to next letter at (i+1)-th index
    - IF i-th char is in letters_not_used, skip n-th word since NOT valid
    - i-th char could be in word
 
@@ -102,7 +237,9 @@ Which qualifier test should go first?
 	Max is 5 tests per word, 1 test per letter
 	Test if yellow letter is NOT in 
 - Test for any grey letters (none used in final word)
-	- Can guess 30 in full 6-round game BUT final 5-letter word must be made of at least 3 unique letters 	  so final size storing grey_letters will be around max 23 letters to test.
+	- Can guess 30 in full 6-round game BUT final 5-letter word must be made of 
+      at least 3 unique letters so final size storing grey_letters will be 
+      around max 23 letters to test.
 		- Best to test if each letter of word exists inside grey_letters
 	Max around 23 or more tests per letter. 23*5=115 max tests per word
 
@@ -110,6 +247,287 @@ Yellow Test (Correct letter but wrong position)
 - TEST 1: If specific letter NOT in specific index
 - TEST 2: AND specific letter exists at some other index
 ISSUE: How to handle duplicate letters?
-- Same letter can be in green AND yellow letters. One letter was correct position but second letter still not found. May be only way to confirm a letter appears twice.
-- Two of the same letter in a guess could be yellow but only appear once in final word. So multiple yellow indices for a letter should only test for a single instance of that letter in the word testing for validity against the testing criteria object.
+- Same letter can be in green AND yellow letters. One letter was correct 
+  position but second letter still not found. May be only way to confirm a 
+  letter appears twice.
+- Two of the same letter in a guess could be yellow but only appear once in 
+  final word. So multiple yellow indices for a letter should only test for a 
+  single instance of that letter in the word testing for validity against the 
+  testing criteria object.
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ex. solution = 'livid'
+TRAIN - grey, grey, grey, green, grey
+CLOSE - grey, yellow, grey, grey, grey
+THIRD - grey, grey, yellow, yellow, green
+{
+    green: [null, null, null, 'i', 'd']
+    yellow: {'r': [1, 3], 'l': [1], 'i': [2]} // indices where letter is NOT present
+    grey: ['t', 'a', 'n', 'c', 'o', 's', 'e', 'h']
+}
+Possible solution to test: bifid
+
+1. Check green letters first. Max 4 letters to check. (5 green letters is solution)
+- All green letters are in correct position.
+
+2. Check if any grey letters in current tested word. Max 5 letters of tested word. 
+Can skip green letter indices.
+- 'b', 'i', 'f' are NOT in grey letters array, current tested word is NOT valid
+NOTE: 'i' cannot be grey because it's already green. Another 'i' could be 
+at some other index. This is possible even before 'i' was added to yellow letters.
+
+3. Check yellow letters...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Best to store grey letters as hash map to instantly check if specific letter is 
+NOT in solution: O(1) read speed
+
+Might be best to go letter-by-letter on current tested word.
+ISSUE: Doesn't properly test yellow letters
+
+ISSUE: Some words are NOT allowed to be input as guess. If these words are 
+chosen for a grid design, another word needs to be found.
+SOLUTION: Could return ALL words that match instead of just the first.
+SOLUTION: User could select max number of words returned for each row. From 
+one to all.
+
+Solution: clunk
+"clach" has first "c" green but second "c" grey
+"ditch" has "c" yellow
+If letter is already green but appears again in guess, the second instance will 
+be grey UNLESS there are two of the letter in the solution. Then the second 
+instance will be yellow.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ex. 
+solution = 'livid'
+THIRD - grey, grey, yellow, grey, green
+Test if THIRD matches grid row design. Should be true:
+
+i=0 "t" - grey (should NOT be in solution word)
+ISSUE: Checking every letter of solution word for each grey letter in current 
+tested word will have 5x5=25 maximum tests for each word.
+SOLUTION: Use key/value pairs to track letters and the indices that letter are 
+present in each word.
+solution: {l: [0], i: [1,3], v: [2], d: [4]}
+"t" NOT a key in solution object, therefore it is grey. Continue
+test: {t: [0]}
+
+i=1 "h" - grey
+"h" NOT key in solution object, therefore it is grey. Continue
+test: {t: [0], h: [1]}
+
+i=2 "i" - yellow
+"i" IS key in solution object BUT not in one of correct indices, therefore it 
+is yellow. Continue
+test: {t: [0], h: [1], i: [2]}
+ISSUE: Have to compare each index in array for specific letter.
+SOLUTION: Faster read speed if every array has length of 5 and each value is 
+boolean if that letter exists at that index.
+
+i=3 "r" - grey
+Continue
+test: {t: [0], h: [1], i: [2], r: [3]}
+
+i=4 "d" - green
+"d" IS key in solution object AND in one of correct indices, therefore it is 
+green. Continue
+
+Reach end, "THIRD" matches grid design row.
+
+-------------------------------------------------------------------------------
+
+solution = 'livid'
+grey, grey, yellow, grey, green
+Test if CLOSE matches grid row design: Should be false:
+
+i=0 "c" - grey
+solution: {l: [0], i: [1,3], v: [2], d: [4]}
+"c" NOT key in soluion object, therefore it is grey. Continue
+test: {c: [0]}
+
+i=1 "l" - grey
+"l" IS key in solution object BUT not in one of correct indices, therefore it 
+is yellow. Skip since it's NOT grey.
+
+-------------------------------------------------------------------------------
+
+solution = "wield"
+find word with matching grid row values: grey, yellow, yellow, yellow, grey
+
+test = "adder"
+Should be false. Will be: grey, yellow, grey, yellow, grey
+How to deal with second "d"?
+
+solution: {w: [0], i: [1], e: [2], l: [3], d: [4]}
+yellow: [true, true, true, true, true]
+
+i=0 "a" - grey
+"a" NOT key in solution object, therefore it is grey. Continue
+test = {a: [0]}
+
+i=1 "d" - yellow
+"d" IS key in solution object BUT not in one of correct indices, therefore it 
+is yellow. Continue
+Set first index of "d" array in solution object inside yellow array to false so 
+it's accounted for in case of duplicate letters at later indices in test word.
+yellow[4] = false
+yellow: [true, true, true, true, false]
+
+i=2 "d" - yellow
+
+NEW LOGIC:
+
+solution = "wield"
+find word with matching grid row values: grey, yellow, yellow, yellow, grey
+
+test = "adder"
+Should be false. Will be: grey, yellow, grey, yellow, grey
+
+- Loop through test word, checking grey and green letters first. Then check 
+for possible yellow letters.
+
+solution_letter_count: {w: 1, i: 1, e: 1, l: 1, d: 1}
+possible_yellow_indices: []
+
+i=0 "a" - check if grey
+"a" NOT key in solution object, therefore it is grey. Continue
+
+i=1 "d" - check if yellow
+"d" IS key in solution object BUT not in i-index of solution, therefore it 
+could be yellow. Add to possible yellow indices. Continue
+NOTE: Cannot reduce letter count because that letter could be green at later index.
+possible_yellow_indices = [1]
+
+i=2 "d" - check if yellow
+...
+possible_yellow_indices = [1,2]
+
+i=3 "e" - check if yellow
+"e" IS key in solution object BUT not in i-index of solution, therefore it 
+could be yellow. Add to possible yellow indices. Continue
+possible_yellow_indices = [1,2,3]
+
+i=4 "r" - check if grey
+"r" NOT key in solution object, therefore it is grey. Continue
+
+Reached end of test word, check possible yellow letters
+possible_yellow_indices = [1,2,3]
+
+possible_yellow_indices=1 "d"
+"d" has count greater than zero, therefore it is yellow. Decrement count. Continue
+--solution_letter_count["d"]
+solution_letter_count: {w: 1, i: 1, e: 1, l: 1, d: 0}
+
+possible_yellow_indices=2 "d"
+"d" has counter equal to zero, therefore it is NOT yellow but grey. 
+Word NOT valid. Skip
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Grid Design Possibilities:
+-----
+-----
+-----
+-----
+-----
+-----
+
+Two Flowers
+-O-O-
+OXOXO
+OOOOO
+-X-X-
+-X-X-
+-X-X-
+
+2-Letter Phrases:
+
+ho
+X-X--
+XXX--
+X-X--
+--XXX
+--X-X
+--XXX
+
+hi 
+gl (good luck)
+
+Discord Emoji:
+
+Candy Cane
+--O--
+-X-X-
+O---O
+----X
+----O
+----X
+
+Santa Hat
+-----
+-----
+--XXO
+-XX--
+XXXX-
+OOOO-
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test every word as the solution to see if all yellow row is possible.
+If it is not possible, or just rare, could use greys when whole row is 
+the same color. Use yellow or green as background color instead of grey. 
+Problem solved if test for different combinations of colors for one grid 
+design. Add function parameters for greyValue, yellowValue, greenValue.
+
+Displays Green and Yellow square in console:
+console.log('%c  %c  ', 'background-color: green; padding: 5px; margin: 2px;', 'background-color: yellow; padding: 5px; margin: 2px;')
+
+Grid designs with all an all yellow row are more rare to be valid. If a 
+design is valid, it should be a higher priority in the list of results.
+Grid designs with whole row as combination of yellow and green is next 
+rarest. Should be second higher priority in results.
+Calculate priority level of design to sort higher priority designs to the top 
+of the list of grid designs.
+Could use the number of valid guesses to calculate the priority. Other than 
+all grey row OR all green row, the number of valid guesses found could be used 
+to calculate the priority. If only 2-3 valid words are found for a row, that 
+design is more rare than if a full maxWords was found.
+Account for identical rows in the same design with the same list of guesses. 
+If a row is the same, skip row when adding value to validity. This occurs 
+in checkerboard, diagonal stripes, etc.
+
+Might be better to calculate "rarity" as just the value of one row with the 
+lowest difference between maxWords - arr.length. Final value will only be 
+between 1-maxWords. Could then split result into thirds for 3 difficulty levels 
+easy, medium, hard.
+Difficulty levels only make sense when maxWords is max number of words in whole 
+list. Top third is most amount of words possible. Bottom third is a single row 
+with least amount of words possible.
+ISSUE: Amount of time will be huge if maxWords is max amount of possible words 
+in whole list. Could use separate function to run this sequence in second 
+thread like used for the woodworking cutlust calculator app.
+SOLUTION: Add new parameter to main check wordle design function that accepts 
+the current progress of the algorithm. If this function is undefined, it just 
+displays the progress in console. Inside React, pass function that change state 
+when the current display changes. Display the current progress on screen.
+
+****
+While creating own design, for every User click on the design calculates if the 
+current grid design is possible (using red X and green Y). User can then click to 
+display the guesses for the current design. User must enter valid solution word 
+on top before calculation is done.
+****
+
+Settings App:
+Minimum Number of Guess Setting:
+When checking for designs, User can change sensitivity of the checker in 
+how many words must be found for a row for that row to be valid. Since 
+some words won't work, can add more possible words is no valid word was found 
+with smaller setting number.
+
+On default screen of create a design app, the default word is "train" since 
+that is my first guess when playing actual Wordle game.

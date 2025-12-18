@@ -37,6 +37,7 @@ function SolutionWordForm({ formSubmitHandler, solutionWord, setSolutionWord }: 
                 name="solution-word"
                 value={ solutionWord }
                 onChange={ handleSolutionWordChange }
+                required
             />
             <button type="submit">Submit</button>
         </form>
