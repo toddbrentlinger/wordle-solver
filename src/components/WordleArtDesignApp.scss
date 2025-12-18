@@ -1,0 +1,44 @@
+#design-app-top-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: var(--base-black, black);
+
+    li {
+        cursor: pointer;
+        padding: 1rem;
+        border-radius: 2rem 2rem 0 0;
+        position: relative;
+
+        &:hover {
+            background-color: darkgrey;
+        }
+        
+        &.active {
+            background-color: var(--background-color, black);
+            z-index: 100;
+
+            &.left-curve-tab::before, 
+            &.right-curve-tab::after {
+                content: "";
+                position: absolute;
+                background-color: transparent;
+                height: 2rem;
+                width: 4rem;
+                bottom: 0;
+                pointer-events: none;
+            }
+
+            &.left-curve-tab::before {
+                left: -4rem;
+                border-bottom-right-radius: 2rem;
+                box-shadow: 2rem 0 0 0 var(--background-color, black);
+            }
+
+            &.right-curve-tab::after {
+                right: -4rem;
+                border-bottom-left-radius: 2rem;
+                box-shadow: -2rem 0 0 0 var(--background-color, black);
+            }
+        }
+    }
+}
