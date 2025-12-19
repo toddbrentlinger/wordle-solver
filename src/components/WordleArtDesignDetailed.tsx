@@ -7,6 +7,7 @@ interface WordleArtDesignDetailedProps {
     grid: number[][];
     guesses: string[][];
     rarity: number;
+    difficulty: number;
     colorFill: number;
     solutionWord: string;
     closeHandler: (e: MouseEvent<HTMLButtonElement> | MouseEvent<HTMLDivElement>) => void;
@@ -18,7 +19,7 @@ interface WordleArtDesignDetailedProps {
  * @param {WordleArtDesignDetailedProps} props
  * @returns {JSX.Element}
  */
-function WordleArtDesignDetailed({ name, grid, guesses, rarity, colorFill, solutionWord, closeHandler }: WordleArtDesignDetailedProps) {
+function WordleArtDesignDetailed({ name, grid, guesses, rarity, difficulty, colorFill, solutionWord, closeHandler }: WordleArtDesignDetailedProps) {
     /** Reference to transparent background element that closes modal when clicked. */
     const backgroundCloseRef = useRef(null); 
 
@@ -103,8 +104,9 @@ function WordleArtDesignDetailed({ name, grid, guesses, rarity, colorFill, solut
                         handleGridDesignClick={() => {}} 
                     />
                     <div id="detailed-header-name">{ name }</div>
-                    <div>Rarity: { rarity }</div>
+                    <div>Rarity: { rarity }%</div>
                     <div>Color Fill: { colorFill }%</div>
+                    <div>Difficulty: { difficulty }</div>
                     <div>Solution: { solutionWord }</div>
                 </article>
                 <article id="detailed-guesses">

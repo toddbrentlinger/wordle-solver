@@ -214,7 +214,7 @@ function WordleArtDesignCreator({ solutionWord, setSolutionWord, gridValues, set
                     (validDesign !== null) 
                         ? (
                             <div>
-                                { `VALID with Rarity: ${validDesign.rarity}` }
+                                { `VALID with Difficulty: ${validDesign.difficulty}` }
                                 <button
                                     type="button"
                                     onClick={handleGridDesignDetailedOpen}

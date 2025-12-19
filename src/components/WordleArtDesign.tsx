@@ -7,6 +7,7 @@ interface WordleArtDesignProps {
     grid: number[][];
     guesses: string[][]; 
     rarity: number; 
+    difficulty: number;
     colorFill: number; 
     onClickHandler: (arg0: ValidGridDesign) => void;
 }
@@ -17,10 +18,10 @@ interface WordleArtDesignProps {
  * @param {WordleArtDesignProps} props
  * @returns {JSX.Element}
  */
-function WordleArtDesign({ name, grid, guesses, rarity, colorFill, onClickHandler }: WordleArtDesignProps) {
+function WordleArtDesign({ name, grid, guesses, rarity, difficulty, colorFill, onClickHandler }: WordleArtDesignProps) {
     /** Click handler function for when the grid design container is clicked. */
     const handleGridDesignClick = () => {
-        onClickHandler({ name, grid, guesses, rarity, colorFill });
+        onClickHandler({ name, grid, guesses, rarity, difficulty, colorFill });
     };
 
     return (
@@ -30,8 +31,9 @@ function WordleArtDesign({ name, grid, guesses, rarity, colorFill, onClickHandle
                 handleGridDesignClick={ handleGridDesignClick } 
             />
             <div className='design-name'>{ name }</div>
-            <div className='design-rarity'>Rarity: { rarity }</div>
+            <div className='design-rarity'>Rarity: { rarity }%</div>
             <div className='design-color-filled'>Color Fill: { colorFill }%</div>
+            <div className='design-difficulty'>Difficulty: { difficulty }</div>
         </div>
     );
 }

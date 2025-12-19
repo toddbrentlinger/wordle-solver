@@ -1,11 +1,12 @@
-import gridDesignsDefault from "./grid-designs-default.json"
-import fiveLetterWordsObj from "./five-letter-words-dict.json"
+import gridDesignsDefault from "./grid-designs-default.json";
+import fiveLetterWordsObj from "./five-letter-words-dict.json";
+import gridDesignRarity from "./grid-design-rarity.json";
 
 /**
  * TODO: Refactor script into singleton.
  */
 
-type GridValue = -1 | 0 | 1;
+export type GridValue = -1 | 0 | 1;
 
 interface GridDesign {
     name: string;
@@ -26,6 +27,7 @@ export interface ValidGridDesign {
     grid: number[][];
     guesses: string[][];
     rarity: number;
+    difficulty: number;
     colorFill: number;
 }
 
@@ -77,30 +79,54 @@ function isGridDesignValid(gridDesign: GridDesign): boolean {
 }
 
 /**
- * Calculates the 'rarity' value of a grid design and the number of guesses for each row.
+ * Calculates the 'rarity' value of a grid design as the percentage of all 
+ * solution words that make the grid design possible.
+ * @param {string} name 
+ * @returns {number}
+ */
+function getGridDesignRarity(name: string) {
+    // Return -1 if name passed as argument is NOT present in the rarity hash map
+    if (!(name in gridDesignRarity)) {
+        return -1;
+    }
+
+    // If rarity hash map value is array, use array length to calculate percentage
+    if (Array.isArray(gridDesignRarity[name])) {
+        return Math.round(100 * gridDesignRarity[name].length / fiveLetterWordsArr.length)
+    }
+
+    // If reach here, rarity hash map value is number. Use it to calculate percentage
+    return Math.round(100 * gridDesignRarity[name] / fiveLetterWordsArr.length);
+}
+
+/**
+ * Calculates the 'difficulty' value of a grid design and the number of guesses for each row.
  * @param {GridDesign} gridDesign 
  * @param {string[][]} guesses 
  * @param {number} maxWords 
  * @returns {number}
  */
-function calculateValidGridDesignRarity(gridDesign: GridDesign, guesses: string[][], maxWords: number): number {
+function calculateValidGridDesignDifficulty(gridDesign: GridDesign, guesses: string[][], maxWords: number): number {
     /**
-     * All Grey rows and all Green rows have lowest rarity. The most valid 
+     * All Grey rows and all Green rows have lowest difficulty. The most valid 
      * guesses result from all Grey rows. All Green rows are just the 
-     * solution word. These rows have a rarity of 0.
+     * solution word. These rows have a difficulty of 0.
      * All other rows will have a mix of colors and the number of valid guesses 
      * will be between 1 and maxWords.
-     * If one row has (maxWords - 1) guesses, add value of 1 to rarity.
+     * If one row has (maxWords - 1) guesses, add value of 1 to difficulty.
      * If one row has only 1 guess, and is not all Green, add value of 
-     * (maxWords - 1) rarity.
+     * (maxWords - 1) difficulty.
      * 
-     * Ignore repeated rows. List of words should only add to rarity once.
+     * Ignore repeated rows. List of words should only add to difficulty once.
      */
 
-    /** Rarity value of the grid design. Higher value, more rare design. */
-    let rarity: number = 0;
+    /** 
+     * Difficulty value of the grid design. Higher value, more difficult 
+     * design for the solution word. 
+     */
+    let difficulty: number = 0;
 
-    // Calculate rarity, row-by-row
+    // Calculate difficulty, row-by-row
     for (let iRow = 0; iRow < gridDesign.grid.length; iRow++) {
         // Skip row if all Grey or Green
         if (gridDesign.grid[iRow].every((gridVal) => gridVal === 0)
@@ -111,7 +137,7 @@ function calculateValidGridDesignRarity(gridDesign: GridDesign, guesses: string[
 
         // If reach here, row has mix of Grey, Yellow, and Green
 
-        // Check if current row is identical to previous row, skip rarity for that row
+        // Check if current row is identical to previous row, skip difficulty for that row
         let isRowCopy: boolean = false;
         prevRowLoop: for (let iPrevRow = 0; iPrevRow < iRow; iPrevRow++) {
             for (let iNode = 0; iNode < gridDesign.grid[iRow].length; iNode++) {
@@ -129,16 +155,16 @@ function calculateValidGridDesignRarity(gridDesign: GridDesign, guesses: string[
         }
 
         /**
-         * If current row is a copy, skip adding to total rarity level. It was 
+         * If current row is a copy, skip adding to total difficulty level. It was 
          * already accounted for.
          */
         if (isRowCopy) { continue; } 
 
-        // Use number of guesses for this row to add to rarity value
-        rarity += maxWords - guesses[iRow].length;
+        // Use number of guesses for this row to add to difficulty value
+        difficulty += maxWords - guesses[iRow].length;
     }
 
-    return rarity;
+    return difficulty;
 }
 
 /**
@@ -358,7 +384,7 @@ function checkGridDesigns(solutionWord: string, maxWords: number = 10, gridDesig
         if (a.rarity === b.rarity) {
             return b.colorFill - a.colorFill;
         }
-        return b.rarity - a.rarity;
+        return a.rarity - b.rarity;
     });
 
     return validGridDesignArr;
@@ -436,8 +462,11 @@ function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, 
         guesses.push(validWordsArr);
     }
 
-    /** Higher rarity number equals less number of guesses to create the grid design. */
-    const rarity: number = calculateValidGridDesignRarity(gridDesignObj, guesses, maxWords);
+    /** Percent of all 5-letter words that can create the grid design if it was the solution word. */
+    const rarity: number = getGridDesignRarity(gridDesignObj.name);
+
+    /** Higher difficulty number equals less number of guesses to create the grid design. */
+    const difficulty: number = calculateValidGridDesignDifficulty(gridDesignObj, guesses, maxWords);
 
     /** Calculate color fill percentage using number of grey nodes. */
     const colorFill = Math.round(
@@ -448,6 +477,7 @@ function checkSingleGridDesign(solutionWord: string, gridDesignObj: GridDesign, 
         ...gridDesignObj, 
         guesses, 
         rarity,
+        difficulty,
         colorFill,
     };
 }
