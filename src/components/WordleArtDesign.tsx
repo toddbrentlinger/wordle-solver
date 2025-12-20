@@ -31,7 +31,7 @@ function WordleArtDesign({ name, grid, guesses, rarity, difficulty, colorFill, o
                 handleGridDesignClick={ handleGridDesignClick } 
             />
             <div className='design-name'>{ name }</div>
-            <div className='design-rarity'>Rarity: { rarity }%</div>
+            <div className='design-rarity'>Rarity: { (rarity === -1) ? '-' : rarity + '%' }</div>
             <div className='design-color-filled'>Color Fill: { colorFill }%</div>
             <div className='design-difficulty'>Difficulty: { difficulty }</div>
         </div>

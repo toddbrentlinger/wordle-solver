@@ -104,7 +104,7 @@ function WordleArtDesignDetailed({ name, grid, guesses, rarity, difficulty, colo
                         handleGridDesignClick={() => {}} 
                     />
                     <div id="detailed-header-name">{ name }</div>
-                    <div>Rarity: { rarity }%</div>
+                    <div>Rarity: { (rarity === -1) ? '-' : rarity + '%' }</div>
                     <div>Color Fill: { colorFill }%</div>
                     <div>Difficulty: { difficulty }</div>
                     <div>Solution: { solutionWord }</div>
