@@ -1,8 +1,8 @@
 import checkGridDesigns, { type ValidGridDesign } from "./grid-design-checker";
 import fiveLetterWordsObj from "./five-letter-words-dict.json";
 
-interface RarityHashMap {
-    [key: string]: number | string[];
+export interface RarityHashMap {
+    [key: string]: string[] | number;
 }
 
 /**
@@ -48,6 +48,9 @@ function calculateGridDesignRarityAll(maxWordsToTrack = 10, updatePercentNotif =
     /** Estimated time left to test rest of words. */
     let timeLeftMS: number;
 
+    /** Reference to grid design value in rarity hash map. */
+    let rarityHashMapValue: string[] | number;
+
     /**
      * Loop through each word and find any valid grid designs. Add that 
      * solution word to each of those grid design names in the hash map, 
@@ -60,16 +63,19 @@ function calculateGridDesignRarityAll(maxWordsToTrack = 10, updatePercentNotif =
         // Add the solution word to each valid grid design in the hash map
         for (const validGridDesignSingle of validGridDesigns) {
             if (validGridDesignSingle.name in hashMap) {
+                // Get reference to value in rarity hash map for the grid design
+                rarityHashMapValue = hashMap[validGridDesignSingle.name];
+
                 // If value is still array of solution words
-                if (Array.isArray(hashMap[validGridDesignSingle.name])) {
+                if (Array.isArray(rarityHashMapValue)) {
                     // If array is already at max word length, change to number
-                    if (hashMap[validGridDesignSingle.name].length === maxWordsToTrack) {
+                    if (rarityHashMapValue.length === maxWordsToTrack) {
                         hashMap[validGridDesignSingle.name] = maxWordsToTrack + 1;
                     } else { // Else can still push values too array of solution words
-                        hashMap[validGridDesignSingle.name].push(word);
+                        rarityHashMapValue.push(word);
                     }
                 } else { // Else value is already number, increment number
-                    hashMap[validGridDesignSingle.name]++;
+                    hashMap[validGridDesignSingle.name] = rarityHashMapValue + 1;
                 }
             } else { // Else grid design NOT already in hash map
                 // Add first solution word to grid design as only value in array

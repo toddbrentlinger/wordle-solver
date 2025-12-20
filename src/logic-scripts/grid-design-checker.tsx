@@ -1,6 +1,7 @@
 import gridDesignsDefault from "./grid-designs-default.json";
 import fiveLetterWordsObj from "./five-letter-words-dict.json";
-import gridDesignRarity from "./grid-design-rarity.json";
+import gridDesignRarityObj from "./grid-design-rarity.json";
+import { type RarityHashMap } from "./grid-design-rarity-calculator";
 
 /**
  * TODO: Refactor script into singleton.
@@ -37,6 +38,12 @@ interface GuessesHashMap {
 
 // Array of five letter words
 const fiveLetterWordsArr: string[] = Object.keys(fiveLetterWordsObj);
+
+/**
+ * Hash map where keys are grid design names and values are either array of 
+ * valid solution words or total number of valid solution words.
+ */
+const gridDesignRarity: RarityHashMap = gridDesignRarityObj;
 
 /**
  * Returns true if a 5-letter word is found in valid list of 5-letter words, else returns false.
