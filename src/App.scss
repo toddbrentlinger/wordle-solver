@@ -76,6 +76,9 @@ header {
 
 main {
     grid-area: main;
+    display: grid;
+    align-content: start;
+    gap: 1rem;
 }
 
 footer {

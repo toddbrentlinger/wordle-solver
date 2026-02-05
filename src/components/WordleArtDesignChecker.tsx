@@ -45,10 +45,20 @@ function WordleArtDesignChecker({
                 solutionWord={ solutionWord }
                 setSolutionWord={ setSolutionWord }
             />
-            <ValidGridDesignDisplay 
-                validGridDesigns={ validGridDesigns }
-                lastWordCalculated={ lastWordCalculated }
-            />
+            {
+                (lastWordCalculated)
+                ? (
+                    <ValidGridDesignDisplay 
+                        validGridDesigns={ validGridDesigns }
+                        lastWordCalculated={ lastWordCalculated }
+                    /> 
+                )
+                : (
+                    <p>
+                        Submit Wordle solution word to get valid grid designs
+                    </p>
+                )
+            }
         </main>
     );
 }
