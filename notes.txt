@@ -1,5 +1,46 @@
 To-Do List:
 
+12/18/25
+
+WordleArtDesign Storage singleton
+    create
+    read
+    update
+    delete
+
+WordleArtDesign storage keys:
+    grid-design-all
+        custom-grid-design-all
+            {
+                name: string;
+                canMirror: boolean;
+                grid: number[][];
+                rarity: {
+                    021: string[] | number;
+                    102: string[] | number; 
+                    120: string[] | number; 
+                    201: string[] | number; 
+                    210: string[] | number;
+                }
+            }
+        default-grid-design-all
+            change which variations can be skipped
+    valid-grid-design-all
+        {
+            name: string;
+            grid: number[][];
+            guesses: string[][];
+            rarity: number;
+            difficulty: number;
+            colorFill: number;
+        }
+    custom-grid-design
+        grid-values: number[][]
+        design-name: string
+
+- User can save valid grid designs including the guesses they selected to be 
+viewed later.
+
 12/17/25
 
 getGridDesigns() inside grid-design-checker which returns a deep copy of the 
@@ -51,7 +92,7 @@ Displays all possible grid designs while form is changed.
 Eventually able to deselect certain designs (certain color swaps don't look 
 right) to NOT check them for validity in the future.
 
-Use grid-design-rarity.json to calculate rarity value. Use percentage to 
+X Use grid-design-rarity.json to calculate rarity value. Use percentage to 
 represent the percent of all words where the grid design is valid. 
 100% rarity when every word can create the grid design. Less than 1% rarity 
 when very few words can create the grid design.
@@ -60,7 +101,7 @@ to calculate the value? Difficulty
 
 12/6/25
 
-- Add optional parameter in grid-design-checker functions for array of grid 
+X Add optional parameter in grid-design-checker functions for array of grid 
 designs to check for the solution word. If no argument is passed, the entire 
 default list of grid designs are checked.
 This allows just a subset of grid designs to be checked. Such as when only a 
